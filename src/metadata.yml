@@ -13,7 +13,17 @@ preset: Overlay
 
 instances: Single
 
-lazy: false 
+lazy: false
+
+settings:
+  - id: agent-url
+    type: text
+    label: Agent URL
+    defaultValue: ""
+  - id: auth-token
+    type: text
+    label: Auth Token
+    defaultValue: ""
 
 html: !include index.html
 js: !include index.js

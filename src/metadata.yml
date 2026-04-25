@@ -1,14 +1,13 @@
-id: "@taweili/hello-world"
+id: "@taweili/seelen-claw"
 
 metadata:
-  displayName: Hello World Clock
-  description: A Hello World with Clock
+  displayName: Seelen Claw 
+  description: Talk to your Claw!
   tags:
-    - clock
+    - openclaw
     - minimal
-    - hello-world
 
-icon: PiClockFill
+icon: PiChatCircleDotsFill
 
 preset: Overlay
 
@@ -19,9 +18,3 @@ lazy: false
 html: !include index.html
 js: !include index.js
 css: !include index.css
-
-settings:
-  - type: color
-    key: background-color
-    label: Background color
-    defaultValue: "#ffe600"

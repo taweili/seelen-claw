@@ -1,4 +1,11 @@
-<div class="hw-root">
-  <div class="hw-greeting">hello world</div>
-  <div class="hw-clock">--:--:-- --</div>
+<div class="chat-root">
+  <ul class="chat-messages" id="chat-messages">
+    <li class="chat-message">
+      <div class="chat-bubble chat-bubble-assistant">Hello! How can I help you today?</div>
+    </li>
+  </ul>
+  <form class="chat-input" id="chat-input">
+    <input type="text" id="chat-input-field" placeholder="Type a message…" autocomplete="off" />
+    <button type="submit" id="chat-send-btn" disabled>Send</button>
+  </form>
 </div>

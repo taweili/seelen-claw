@@ -1,0 +1,19 @@
+{
+  "name": "@taweili/seelen-hello",
+  "version": "1.0.0",
+  "description": "Seelen UI Hello World widget",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "load": "seelen-ui resource load widget ./dist",
+    "unload": "seelen-ui resource unload widget ./dist"
+  },
+  "devDependencies": {
+    "chokidar": "^5.0.0",
+    "esbuild": "^0.25.12"
+  },
+  "dependencies": {
+    "@seelen-ui/lib": "^2.5.9"
+  }
+}

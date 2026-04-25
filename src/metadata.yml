@@ -1,0 +1,27 @@
+id: "@taweili/hello-world"
+
+metadata:
+  displayName: Hello World Clock
+  description: A Hello World with Clock
+  tags:
+    - clock
+    - minimal
+    - hello-world
+
+icon: PiClockFill
+
+preset: Overlay
+
+instances: Single
+
+lazy: false 
+
+html: !include index.html
+js: !include index.js
+css: !include index.css
+
+settings:
+  - type: color
+    key: background-color
+    label: Background color
+    defaultValue: "#ffe600"

@@ -1,50 +1,73 @@
 import { Widget } from "@seelen-ui/lib";
 
 /**
- * Format a Date as 12-hour time with seconds and AM/PM.
- * Example: "3:45:30 PM"
+ * Create a chat message DOM element.
+ * @param {string} text - The message text content.
+ * @param {'user'|'assistant'} type - The message sender type.
+ * @returns {HTMLLIElement|null} The message list item, or null if text is empty/null.
  */
-function formatTime12Hour(date) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-  return formatter.format(date);
+export function renderMessage(text, type) {
+  if (!text || typeof text !== "string" || !text.trim()) {
+    return null;
+  }
+
+  const li = document.createElement("li");
+  li.className = `chat-message chat-message-${type}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble chat-bubble-${type}`;
+  bubble.textContent = text;
+
+  li.appendChild(bubble);
+  return li;
 }
 
 /**
- * Update the clock display with the current time.
+ * Append a message to the chat and scroll to bottom.
+ * @param {{ text: string, type: 'user'|'assistant' }} msg - Message object.
  */
-function updateClock() {
-  const clockEl = document.querySelector(".hw-clock");
-  if (clockEl) {
-    clockEl.textContent = formatTime12Hour(new Date());
-  }
+export function appendMessage(msg) {
+  const el = renderMessage(msg.text, msg.type);
+  if (!el) return;
+
+  const messageList = document.getElementById("chat-messages");
+  if (!messageList) return;
+
+  messageList.appendChild(el);
+
+  // Use requestAnimationFrame to ensure layout is computed before reading scrollHeight
+  requestAnimationFrame(() => {
+    messageList.scrollTop = messageList.scrollHeight;
+  });
 }
 
-// Update immediately, then every second
-updateClock();
-setInterval(updateClock, 1000);
+// Seed a sample assistant greeting on init
+appendMessage({
+  text: "Hello! I'm Claw. How can I help you?",
+  type: "assistant",
+});
 
 // Initialize the Seelen widget
 async function main() {
   const widget = Widget.getCurrent();
 
-  // Read widget settings and apply background color
-  const { Settings } = await import("@seelen-ui/lib");
-  const settings = await Settings.getAsync();
-  const widgetConfig = settings.getCurrentWidgetConfig();
-  const bgColor = widgetConfig["background-color"] || "#ffe600";
+  // Lazy settings import — may not be available in all Seelen UI environments (MEM015)
+  try {
+    const { Settings } = await import("@seelen-ui/lib");
+    const settings = await Settings.getAsync();
+    const widgetConfig = settings.getCurrentWidgetConfig();
+    const bgColor = widgetConfig["background-color"] || "#ffe600";
 
-  const rootEl = document.querySelector(".hw-root");
-  if (rootEl) {
-    rootEl.style.background = bgColor;
+    const rootEl = document.querySelector(".chat-root");
+    if (rootEl) {
+      rootEl.style.background = bgColor;
+    }
+  } catch {
+    // Settings not available — widget still initializes with defaults
   }
 
   await widget.init({
-    autoSizeByContent: document.querySelector(".hw-root"),
+    autoSizeByContent: document.querySelector(".chat-root"),
     autoSizeFitOnScreen: true,
     normalizeDevicePixelRatio: true,
   });

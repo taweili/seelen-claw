@@ -47,6 +47,33 @@ appendMessage({
   type: "assistant",
 });
 
+// Form submit handler: send message on submit or Enter key
+const chatInput = document.getElementById("chat-input");
+const chatInputField = document.getElementById("chat-input-field");
+const chatSendBtn = document.getElementById("chat-send-btn");
+
+if (chatInput && chatInputField && chatSendBtn) {
+  chatInput.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const trimmed = chatInputField.value.trim();
+    if (!trimmed) return;
+
+    // Enforce 400 character limit (truncate to be user-friendly)
+    const text = trimmed.length > 400 ? trimmed.slice(0, 400) : trimmed;
+
+    appendMessage({ text, type: "user" });
+
+    // Clear input and refocus for rapid messaging
+    chatInputField.value = "";
+    chatInputField.focus();
+  });
+
+  // Toggle send button based on input content
+  chatInputField.addEventListener("input", () => {
+    chatSendBtn.disabled = !chatInputField.value.trim().length;
+  });
+}
+
 // Initialize the Seelen widget
 async function main() {
   const widget = Widget.getCurrent();

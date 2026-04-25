@@ -16,11 +16,11 @@ instances: Single
 lazy: false
 
 settings:
-  - id: agent-url
+  - key: agent-url
     type: text
     label: Agent URL
     defaultValue: ""
-  - id: auth-token
+  - key: auth-token
     type: text
     label: Auth Token
     defaultValue: ""

@@ -1,6 +1,64 @@
 import { Widget } from "@seelen-ui/lib";
 
 /**
+ * Minimal markdown-to-HTML renderer for assistant messages.
+ * Supports: headings, bold, italic, code, inline code, lists, links, blockquotes, horizontal rules.
+ * @param {string} md - Markdown text.
+ * @returns {string} HTML string.
+ */
+function renderMarkdown(md) {
+  let html = md;
+
+  // Escape HTML entities first (but preserve markdown syntax)
+  html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, _lang, code) => {
+    return `<pre><code>${code.trim()}</code></pre>`;
+  });
+
+  // Headings
+  html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+
+  // Horizontal rules
+  html = html.replace(/^---$/gm, "<hr>");
+
+  // Bold and italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  // Blockquotes
+  html = html.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
+
+  // Unordered lists
+  html = html.replace(/^[-*] (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, "<ul>$1</ul>");
+
+  // Ordered lists
+  html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+
+  // Paragraphs: wrap remaining standalone lines
+  html = html.replace(/^(?!<)(.+)$/gm, "<p>$1</p>");
+
+  // Clean up empty paragraphs
+  html = html.replace(/<p>\s*<\/p>/g, "");
+
+  // Merge adjacent block-level elements separated by newlines
+  html = html.replace(/\n/g, "");
+
+  return html;
+}
+
+/**
  * Create a chat message DOM element.
  * @param {string} text - The message text content.
  * @param {'user'|'assistant'} type - The message sender type.
@@ -16,7 +74,14 @@ export function renderMessage(text, type) {
 
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble chat-bubble-${type}`;
-  bubble.textContent = text;
+
+  if (type === "assistant") {
+    // Render markdown for assistant messages
+    bubble.innerHTML = renderMarkdown(text);
+  } else {
+    // Plain text for user messages
+    bubble.textContent = text;
+  }
 
   li.appendChild(bubble);
   return li;
@@ -61,18 +126,85 @@ export function appendMessage(msg) {
  * @implements {AgentClient}
  */
 const MockAgent = {
-  /** Randomized responses for demo variety */
+  /** Markdown-rich responses for demo variety */
   RESPONSES: [
-    "That's interesting! Tell me more.",
-    "I see what you mean. Let me think about that.",
-    "Great point! Here's my take on it...",
-    "I understand. Would you like me to elaborate?",
-    "Thanks for sharing that. Here's what I think...",
-    "That's a good question. Let me break it down.",
-    "I appreciate your input. Here's my perspective.",
-    "Interesting! Let me process that for you.",
-    "Got it. Here's my response to that.",
-    "That makes sense. Let me respond...",
+    `### Great question! 🎯
+
+Here's my take on it:
+
+- **First**, consider the architecture
+- **Second**, think about scalability
+- ***Finally***, test thoroughly
+
+> "The best code is the code you don't write."
+
+Check out the [docs](https://example.com) for more info.`,
+
+    `## Let me break it down
+
+| Feature | Status |
+|---------|--------|
+| Auth    | ✅ Done |
+| Cache   | 🔄 WIP  |
+| Deploy  | ⏳ Pending |
+
+\`\`\`javascript
+const result = await fetch('/api/data');
+console.log(result.status);
+\`\`\`
+
+---
+
+*Let me know if you need more details!*`,
+
+    `I see what you mean. Here are some **key points**:
+
+1. Start with \`npm install\`
+2. Run the build: \`npm run build\`
+3. Deploy with \`seelen-ui load\`
+
+### Pro Tips
+
+- Use \`--watch\` mode during development
+- Always **validate** your config before deploying
+- Keep dependencies *up to date*
+
+> 💡 Tip: Run \`npm audit\` regularly to catch vulnerabilities.`,
+
+    `## Quick Summary
+
+Here's what I found:
+
+- **Performance**: The widget loads in \`< 100ms\`
+- **Bundle size**: ~\`15KB\` gzipped
+- **Dependencies**: Only \`@seelen-ui/lib\`
+
+\`\`\`css
+.chat-bubble {
+  border-radius: 18px;
+  padding: 10px 14px;
+}
+\`\`\`
+
+---
+
+*Need more info? Just ask!*`,
+
+    `Thanks for sharing! Here's **my perspective**:
+
+### Architecture Overview
+
+\`\`\`
+User Input → MockAgent → renderMessage → DOM
+\`\`\`
+
+Key decisions:
+
+- ***Markdown rendering*** for assistant messages
+- Plain text for user messages
+- Settings loaded via \`Settings API\`
+
+> "Simplicity is the ultimate sophistication." — Leonardo da Vinci`,
   ],
 
   /**
